@@ -38,6 +38,8 @@ import siena.jdbc.JdbcPersistenceManager;
 import siena.jdbc.PostgresqlPersistenceManager;
 import siena.jdbc.ddl.DdlGenerator;
 import siena.sdb.SdbPersistenceManager;
+import com.googlecode.objectify.cache.EntityMemcache;
+import play.exceptions.ConfigurationException;
 
 public class SienaPlugin extends PlayPlugin {
     
@@ -254,7 +256,32 @@ public class SienaPlugin extends PlayPlugin {
 			Logger.debug("Siena DB Type: GAE");
 			String caching = Play.configuration.getProperty("siena.gae.caching", "false");
 			if(caching.toLowerCase().equals("true")){
-                persistenceManager = new GaeCachingPersistenceManager();
+                Logger.debug("Siena using caching");
+                
+                EntityMemcache em = null;
+                String emFactoryString = Play.configuration.getProperty("siena.gae.caching.emfactory");
+                if (emFactoryString != null) {
+                    if (!emFactoryString.equals("")) {
+                        try {
+                            
+                            Class<EntityMemcacheFactory> clazz = (Class<EntityMemcacheFactory>) Class
+							.forName(emFactoryString);
+                            
+                            EntityMemcacheFactory entityMemcacheFactory = clazz
+							.newInstance();
+                            em = entityMemcacheFactory.get();
+                            Logger.debug("Siena using entity memcache factory %s", emFactoryString);
+                        } catch (Exception e) {
+                            throw new ConfigurationException(
+                                                             String.format(
+                                                                           "Unable to create EntityMemcacheFactory from application.conf: [%s]",
+                                                                           e.getMessage()));
+                        }
+                    }
+                    
+                }
+                
+                persistenceManager = new GaeCachingPersistenceManager(em);
             } else {
                 persistenceManager = new GaePersistenceManager();
             }
