@@ -31,6 +31,7 @@ import siena.PersistenceManager;
 import siena.PersistenceManagerFactory;
 import siena.core.PersistenceManagerLifeCycleWrapper;
 import siena.gae.GaePersistenceManager;
+import siena.gae.GaeCachingPersistenceManager;
 import siena.jdbc.GoogleSqlPersistenceManager;
 import siena.jdbc.H2PersistenceManager;
 import siena.jdbc.JdbcPersistenceManager;
@@ -251,7 +252,12 @@ public class SienaPlugin extends PlayPlugin {
 			                    
         } else if(dbType.equals("nosql:gae")) {
 			Logger.debug("Siena DB Type: GAE");
-            persistenceManager = new GaePersistenceManager();
+			String caching = Play.configuration.getProperty("siena.gae.caching", "false");
+			if(caching.toLowerCase().equals("true")){
+                persistenceManager = new GaeCachingPersistenceManager();
+            } else {
+                persistenceManager = new GaePersistenceManager();
+            }
 			
             // activate lifecycle or not
 			if(useLifecycle()){
