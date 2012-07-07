@@ -264,8 +264,7 @@ public class SienaPlugin extends PlayPlugin {
                     if (!emFactoryString.equals("")) {
                         try {
                             
-                            Class<EntityMemcacheFactory> clazz = (Class<EntityMemcacheFactory>) Class
-							.forName(emFactoryString);
+                            Class<EntityMemcacheFactory> clazz = (Class<EntityMemcacheFactory>) Play.classloader.loadApplicationClass(emFactoryString);
                             
                             EntityMemcacheFactory entityMemcacheFactory = clazz
 							.newInstance();
