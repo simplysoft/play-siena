@@ -3,11 +3,14 @@ package play.modules.siena;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.Override;
+import java.sql.*;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -293,6 +296,10 @@ public class GoogleSqlDBPlugin extends PlayPlugin {
 
         public boolean acceptsURL(String u) throws SQLException {
             return this.driver.acceptsURL(u);
+        }
+        
+        public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+            return this.driver.getParentLogger();
         }
 
         public Connection connect(String u, Properties p) throws SQLException {
